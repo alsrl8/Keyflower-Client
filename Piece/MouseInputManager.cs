@@ -70,25 +70,27 @@ namespace Piece
             var hitCount = Physics.RaycastNonAlloc(_ray, hits, Mathf.Infinity, layerMask);
             if (hitCount == 0) return;
 
-            GameObject playerMeeple = null;
+            GameObject clickedMeeple = null;
             for (var i = 0; i < hitCount; i++)
             {
                 var hit = hits[i];
                 var meepleID = hit.collider.gameObject.name;
                 if (!MeepleManager.Instance.IsMeepleBelongToUser(meepleID)) continue;
-                playerMeeple = hit.collider.gameObject;
+                clickedMeeple = hit.collider.gameObject;
                 break;
             }
 
-            if (ReferenceEquals(playerMeeple, null)) return; // If no player meeples were found among hits, return early
+            if (ReferenceEquals(clickedMeeple, null)) return; // If no player meeples were found among hits, return early
 
             _isDragging = true;
-            _currentlyDragging = playerMeeple;
+            _currentlyDragging = clickedMeeple;
             _dragStartPosition = _currentlyDragging.transform.position;
 
             MoveSlightlyAboveDraggingObject();
             Cursor.visible = false;
             MeepleManager.Instance.ActivateOutline(_currentlyDragging.name);
+            var triggeredTileID = MeepleManager.Instance.GetTileIDByMeepleID(_currentlyDragging.name);
+            if (!ReferenceEquals(triggeredTileID, "")) TileManager.Instance.ActivateOutline(triggeredTileID);
         }
 
         private void MoveSlightlyAboveDraggingObject()
@@ -136,22 +138,23 @@ namespace Piece
             _currentlyDragging.transform.position = new Vector3(transformPosition.x, 0.6f, transformPosition.z);
             Cursor.visible = true;
 
-            if (TileManager.Instance.IsAnyTileActivate())
+            if (TileManager.Instance.IsTileTriggered())
             {
                 if (IsDraggableToThisTile())
                 {
                     var meepleID = _currentlyDragging.name;
-                    var tileID = TileManager.Instance.GetActiveTileID();
+                    var tileID = TileManager.Instance.GetTriggeredTileID();
                     GameManager.Instance.BindMeepleAndActiveTile(meepleID);
                     MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
+
+                    TileManager.Instance.InactiveOutline(tileID);
+                    var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+                    _currentlyDragging.transform.position = new Vector3(tilePosition.x, 0.6f, tilePosition.z - 1.2f);
                 }
                 else
                 {
                     _currentlyDragging.transform.position = _dragStartPosition;
                 }
-
-                TileManager.Instance.InactiveOutline();
-                TileManager.Instance.SetActiveTileMeshNull();
             }
             
             MeepleManager.Instance.InactiveOutline(_currentlyDragging.name);
@@ -174,7 +177,7 @@ namespace Piece
             var meepleColor = MeepleManager.Instance.GetMeepleColor(_currentlyDragging.name);
             if (meepleColor == "Green") return true;
 
-            var initialTileColor = TileManager.Instance.GetInitialMeepleColorOfActiveTile();
+            var initialTileColor = TileManager.Instance.GetColorOfTriggeredTile();
             return initialTileColor == "" || initialTileColor == meepleColor;
         }
     }

@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            Actions = new Queue<Action>();
             _startAnimator = chestObject.GetComponent<Animator>();
             _turnIconImage = turnIcon.GetComponent<Image>();
             DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
@@ -35,11 +36,6 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject); // Destroy additional instance
         }
-    }
-
-    private void Start()
-    {
-        Actions = new Queue<Action>();
     }
 
     private void Update()
@@ -100,7 +96,7 @@ public class GameManager : MonoBehaviour
 
     public void BindMeepleAndActiveTile(string meepleID)
     {
-        var tileID = TileManager.Instance.GetActiveTileID();
+        var tileID = TileManager.Instance.GetTriggeredTileID();
         BindMeepleAndTile(meepleID, tileID);
     }
 

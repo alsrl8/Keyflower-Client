@@ -13,8 +13,8 @@ namespace Piece
         public GameObject meeplePurplePrefab;
         public Material meepleTransparentMaterial;
         public GameObject meeplesGroup;
-        private Dictionary<string, GameObject> _meepleDictionary;
-        private Dictionary<string, MeepleOutline> _meepleOutlineDictionary;
+        // private Dictionary<string, GameObject> _meepleDictionary;
+        private Dictionary<string, Meeple> _meepleDictionary;
         private Dictionary<string, string> _meepleColorDictionary;
         private Dictionary<string, GameObject> _myMeepleDictionary;
         private Dictionary<string, string> _meepleTileDictionary;
@@ -27,8 +27,8 @@ namespace Piece
                 Instance = this;
                 DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
 
-                _meepleDictionary = new Dictionary<string, GameObject>();
-                _meepleOutlineDictionary = new Dictionary<string, MeepleOutline>();
+                // _meepleDictionary = new Dictionary<string, GameObject>();
+                _meepleDictionary = new Dictionary<string, Meeple>();
                 _myMeepleDictionary = new Dictionary<string, GameObject>();
                 _meepleColorDictionary = new Dictionary<string, string>();
                 _meepleTileDictionary = new Dictionary<string, string>();
@@ -43,12 +43,7 @@ namespace Piece
         {
             meeplesGroup.SetActive(true);
         }
-
-        public GameObject GetMeepleByID(string meepleID)
-        {
-            return _meepleDictionary[meepleID];
-        }
-
+        
 
         public void AddNewMeeple(NewMeepleData meepleData)
         {
@@ -73,16 +68,14 @@ namespace Piece
                 newMeeple.SetActive(false);
             }
 
-            _meepleDictionary.Add(meepleID, newMeeple);
-            _meepleOutlineDictionary.Add(meepleID, newMeeple.GetComponent<MeepleOutline>());
+            // _meepleDictionary.Add(meepleID, newMeeple);
+            _meepleDictionary.Add(meepleID, newMeeple.GetComponent<Meeple>());
             _meepleColorDictionary.Add(meepleID, meepleData.color);
         }
 
         private void AssignObjectIdToMeeple(GameObject meeple, string meepleID, string ownerID)
         {
             meeple.name = meepleID;
-            var objectIDComponent = meeple.AddComponent<ObjectID>();
-            objectIDComponent.Initialize(meepleID, ownerID);
         }
 
         private GameObject GetPrefabWithColor(string color)
@@ -121,13 +114,13 @@ namespace Piece
 
         public void ActivateOutline(string meepleID)
         {
-            _meepleOutlineDictionary[meepleID].Activate();
+            _meepleDictionary[meepleID].ActivateOutline();
         }
 
 
         public void InactiveOutline(string meepleID)
         {
-            _meepleOutlineDictionary[meepleID].Inactivate();
+            _meepleDictionary[meepleID].InactiveOutline();
         }
 
 
@@ -136,66 +129,16 @@ namespace Piece
             return _meepleColorDictionary[meepleID];
         }
 
-        private void MoveMyMeepleToTile(string meepleID, string tileID)
-        {
-            var meeple = _meepleDictionary[meepleID];
-            var tilePosition = TileManager.Instance.GetTilePosition(tileID);
-
-            var xPosition = tilePosition.x + Random.Range(-0.5f, 0.5f);
-            var yPosition = 0.6f;
-            var zPosition = tilePosition.z - 1.3f;
-            meeple.transform.position = new Vector3(xPosition, yPosition, zPosition);
-        }
-
-        private void MoveOtherMeepleToTile(string meepleID, string tileID)
-        {
-            var meeple = _meepleDictionary[meepleID];
-            meeple.SetActive(true);
-            var tilePosition = TileManager.Instance.GetTilePosition(tileID);
-
-            var randomLeftOrRight = Random.Range(-1f, 1f);
-            if (randomLeftOrRight < 0)
-            {
-                var randomVar = Random.Range(1.0f, 1.5f);
-                var xPosition = tilePosition.x - randomVar;
-                var yPosition = 0.6f;
-                var zPosition = tilePosition.z - (randomVar * 0.5f / 0.8f);
-                MoveManager.Instance.MoveToPosition(meeple, new Vector3(xPosition, yPosition, zPosition), 0f);
-            }
-            else
-            {
-                var randomVar = Random.Range(1.0f, 1.5f);
-                var xPosition = tilePosition.x + randomVar;
-                var yPosition = 0.6f;
-                var zPosition = tilePosition.z - (randomVar * 0.5f / 0.8f);
-                MoveManager.Instance.MoveToPosition(meeple, new Vector3(xPosition, yPosition, zPosition), 0f);
-            }
-        }
-
 
         public void BindToTile(string meepleID, string tileID)
         {
             _meepleTileDictionary[meepleID] = tileID;
-
-            if (IsMeepleBelongToUser(meepleID))
-            {
-                MoveMyMeepleToTile(meepleID, tileID);
-            }
-            else
-            {
-                MoveOtherMeepleToTile(meepleID, tileID);
-            }
         }
 
         public void UnbindMeeple(string meepleID)
         {
             if (!_meepleTileDictionary.ContainsKey(meepleID)) return;
             _meepleTileDictionary.Remove(meepleID);
-        }
-
-        public bool IsMeepleBoundToTile(string meepleID)
-        {
-            return _meepleTileDictionary.ContainsKey(meepleID);
         }
     }
 }

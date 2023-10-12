@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace Piece
 {
-    public class TileMesh : MonoBehaviour
+    public class Tile : MonoBehaviour
     {
+        public GameObject outline;
         public GameObject bidNumLogo;
         public GameObject playNumLogo;
         private int _bidNum;
@@ -16,24 +17,34 @@ namespace Piece
             _meepleMeshFilter = transform.Find("BoundMeeple").GetComponent<MeshFilter>();
         }
 
+        public void ActivateOutline()
+        {
+            outline.SetActive(true);
+        }
+
+        public void InactivateOutline()
+        {
+            outline.SetActive(false);
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             if (!IsComponentMeeple(other)) return;
             else if (!GameManager.Instance.IsMyTurn()) return;
-
-            TileManager.Instance.SetActiveTileMesh(this);
-            TileManager.Instance.SetOutlinePositionNearByActiveTileMesh();
-            TileManager.Instance.ActiveOutline();
+            
+            TileManager.Instance.TriggerTile(this.name);
+            ActivateOutline();
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (!IsComponentMeeple(other)) return;
+            
+            TileManager.Instance.UnTriggerTile();
+            InactivateOutline();
 
             var meepleID = other.name;
             GameManager.Instance.UnbindMeepleFromTile(meepleID, this.name);
-            TileManager.Instance.InactiveOutline();
-            TileManager.Instance.SetActiveTileMeshNull();
         }
 
         /// <summary>
