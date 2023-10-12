@@ -88,9 +88,7 @@ namespace Piece
 
             MoveSlightlyAboveDraggingObject();
             Cursor.visible = false;
-
-            MeepleManager.Instance.ActivateOutline();
-            MoveDraggingMeepleOutline();
+            MeepleManager.Instance.ActivateOutline(_currentlyDragging.name);
         }
 
         private void MoveSlightlyAboveDraggingObject()
@@ -98,11 +96,7 @@ namespace Piece
             var position = _currentlyDragging.transform.position + Vector3.up * 0.4f;
             _currentlyDragging.transform.position = position;
         }
-
-        private void MoveDraggingMeepleOutline()
-        {
-            MeepleManager.Instance.MoveOutline(_currentlyDragging.transform.position);
-        }
+        
 
         private void HandleTileClickEvent()
         {
@@ -132,7 +126,6 @@ namespace Piece
             }
 
             _currentlyDragging.transform.position = newPosition;
-            MeepleManager.Instance.MoveOutline(newPosition + new Vector3(0, -0.02f, 0));
         }
 
         private void FinishDragging()
@@ -142,7 +135,6 @@ namespace Piece
             var transformPosition = _currentlyDragging.transform.position;
             _currentlyDragging.transform.position = new Vector3(transformPosition.x, 0.6f, transformPosition.z);
             Cursor.visible = true;
-            MeepleManager.Instance.InactiveOutline();
 
             if (TileManager.Instance.IsAnyTileActivate())
             {
@@ -161,7 +153,8 @@ namespace Piece
                 TileManager.Instance.InactiveOutline();
                 TileManager.Instance.SetActiveTileMeshNull();
             }
-
+            
+            MeepleManager.Instance.InactiveOutline(_currentlyDragging.name);
             _currentlyDragging = null;
             _isDragging = false;
         }

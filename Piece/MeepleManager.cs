@@ -14,13 +14,10 @@ namespace Piece
         public Material meepleTransparentMaterial;
         public GameObject meeplesGroup;
         private Dictionary<string, GameObject> _meepleDictionary;
+        private Dictionary<string, MeepleOutline> _meepleOutlineDictionary;
         private Dictionary<string, string> _meepleColorDictionary;
         private Dictionary<string, GameObject> _myMeepleDictionary;
         private Dictionary<string, string> _meepleTileDictionary;
-
-        public GameObject meepleOutlinePrefab;
-        public Material meepleOutlineMaterial;
-        private GameObject _meepleOutlineObj;
 
         // Singleton pattern
         private void Awake()
@@ -31,6 +28,7 @@ namespace Piece
                 DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
 
                 _meepleDictionary = new Dictionary<string, GameObject>();
+                _meepleOutlineDictionary = new Dictionary<string, MeepleOutline>();
                 _myMeepleDictionary = new Dictionary<string, GameObject>();
                 _meepleColorDictionary = new Dictionary<string, string>();
                 _meepleTileDictionary = new Dictionary<string, string>();
@@ -44,9 +42,8 @@ namespace Piece
         public void ActivateMeepleGroup()
         {
             meeplesGroup.SetActive(true);
-            CreateOutline();
         }
-        
+
         public GameObject GetMeepleByID(string meepleID)
         {
             return _meepleDictionary[meepleID];
@@ -77,6 +74,7 @@ namespace Piece
             }
 
             _meepleDictionary.Add(meepleID, newMeeple);
+            _meepleOutlineDictionary.Add(meepleID, newMeeple.GetComponent<MeepleOutline>());
             _meepleColorDictionary.Add(meepleID, meepleData.color);
         }
 
@@ -116,37 +114,22 @@ namespace Piece
             return _myMeepleDictionary.ContainsKey(meepleID);
         }
 
-        private void CreateOutline()
-        {
-            var outlinePreFabTransform = meepleOutlinePrefab.transform;
-            var meeplesObjectGroup = GameObject.Find("Meeples");
-            _meepleOutlineObj = Instantiate(meepleOutlinePrefab, outlinePreFabTransform.position, outlinePreFabTransform.rotation, meeplesObjectGroup.transform);
-            _meepleOutlineObj.GetComponent<Renderer>().material = meepleOutlineMaterial;
-            _meepleOutlineObj.transform.localScale = gameObject.transform.localScale * 1.1f; // Slightly larger
-            _meepleOutlineObj.name = "Outline";
-            _meepleOutlineObj.layer = 0;
-            _meepleOutlineObj.SetActive(false);
-        }
-
         public string GetTileIDByMeepleID(string meepleID)
         {
             return _meepleTileDictionary.TryGetValue(meepleID, out var value) ? value : "";
         }
 
-        public void ActivateOutline()
+        public void ActivateOutline(string meepleID)
         {
-            _meepleOutlineObj.SetActive(true);
+            _meepleOutlineDictionary[meepleID].Activate();
         }
 
-        public void InactiveOutline()
+
+        public void InactiveOutline(string meepleID)
         {
-            _meepleOutlineObj.SetActive(false);
+            _meepleOutlineDictionary[meepleID].Inactivate();
         }
 
-        public void MoveOutline(Vector3 position)
-        {
-            _meepleOutlineObj.transform.position = position;
-        }
 
         public string GetMeepleColor(string meepleID)
         {
@@ -169,7 +152,7 @@ namespace Piece
             var meeple = _meepleDictionary[meepleID];
             meeple.SetActive(true);
             var tilePosition = TileManager.Instance.GetTilePosition(tileID);
-    
+
             var randomLeftOrRight = Random.Range(-1f, 1f);
             if (randomLeftOrRight < 0)
             {
