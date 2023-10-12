@@ -4,6 +4,8 @@ namespace Piece
 {
     public class Tile : MonoBehaviour
     {
+        public string Color { set; get; }
+        
         public GameObject outline;
         public GameObject bidNumLogo;
         public GameObject playNumLogo;

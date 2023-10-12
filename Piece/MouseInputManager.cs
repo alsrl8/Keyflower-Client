@@ -11,6 +11,7 @@ namespace Piece
         private Ray _ray;
         private bool _isDragging;
         private GameObject _currentlyDragging;
+        private Meeple _triggeredMeeple;
         private Vector3 _dragStartPosition;
 
         // Singleton pattern
@@ -90,7 +91,11 @@ namespace Piece
             Cursor.visible = false;
             MeepleManager.Instance.ActivateOutline(_currentlyDragging.name);
             var triggeredTileID = MeepleManager.Instance.GetTileIDByMeepleID(_currentlyDragging.name);
-            if (!ReferenceEquals(triggeredTileID, "")) TileManager.Instance.ActivateOutline(triggeredTileID);
+            if (!ReferenceEquals(triggeredTileID, ""))
+            {
+                TileManager.Instance.ActivateOutline(triggeredTileID);
+                TileManager.Instance.TriggerTile(triggeredTileID);
+            }
         }
 
         private void MoveSlightlyAboveDraggingObject()
@@ -132,23 +137,30 @@ namespace Piece
 
         private void FinishDragging()
         {
-            if (!_isDragging) return;
-
             var transformPosition = _currentlyDragging.transform.position;
             _currentlyDragging.transform.position = new Vector3(transformPosition.x, 0.6f, transformPosition.z);
             Cursor.visible = true;
-
-            if (TileManager.Instance.IsTileTriggered())
+            
+            // Handle triggered meeple before tile.
+            if (!ReferenceEquals(_triggeredMeeple, null))
             {
-                if (IsDraggableToThisTile())
+                _triggeredMeeple.InactiveOutline();
+                // TODO 여기서 미플들을 그룹으로 만듦
+                SetTriggeredMeeple(null);
+            }
+            else if (TileManager.Instance.IsTileTriggered())
+            {
+                if (IsDraggableToTriggeredTile())
                 {
                     var meepleID = _currentlyDragging.name;
                     var tileID = TileManager.Instance.GetTriggeredTileID();
-                    GameManager.Instance.BindMeepleAndActiveTile(meepleID);
-                    MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
-
-                    TileManager.Instance.InactiveOutline(tileID);
                     var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+                    
+                    ChangeTileColor(tileID, meepleID);
+                    GameManager.Instance.BindMeepleAndActiveTile(meepleID); 
+                    MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
+                    TileManager.Instance.InactiveOutline(tileID);
+                    TileManager.Instance.UnTriggerTile();
                     _currentlyDragging.transform.position = new Vector3(tilePosition.x, 0.6f, tilePosition.z - 1.2f);
                 }
                 else
@@ -172,13 +184,41 @@ namespace Piece
             return "Tile";
         }
 
-        private bool IsDraggableToThisTile()
+        private bool IsDraggableToTriggeredTile()
         {
             var meepleColor = MeepleManager.Instance.GetMeepleColor(_currentlyDragging.name);
             if (meepleColor == "Green") return true;
+            var tileColor = TileManager.Instance.GetColorOfTriggeredTile();
+            return ReferenceEquals(tileColor, null) || tileColor == meepleColor;
+        }
 
-            var initialTileColor = TileManager.Instance.GetColorOfTriggeredTile();
-            return initialTileColor == "" || initialTileColor == meepleColor;
+        private void ChangeTileColor(string tileID, string meepleID)
+        {
+            var meepleColor = MeepleManager.Instance.GetMeepleColor(meepleID);
+            if (ReferenceEquals(TileManager.Instance.GetTileColorByID(tileID), null))
+            {
+                TileManager.Instance.SetTileColorByID(tileID, meepleColor);
+            }
+        }
+
+        public bool IsDraggingMeeple()
+        {
+            return _isDragging;
+        }
+
+        public bool IsThisDraggingMeeple(string meepleID)
+        {
+            return !ReferenceEquals(_currentlyDragging, null) && _currentlyDragging.name == meepleID;
+        }
+
+        public Meeple GetTriggeredMeeple()
+        {
+            return _triggeredMeeple;
+        }
+
+        public void SetTriggeredMeeple(Meeple triggeredMeeple)
+        {
+            _triggeredMeeple = triggeredMeeple;
         }
     }
 }

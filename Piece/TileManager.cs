@@ -86,7 +86,7 @@ namespace Piece
 
         public string GetColorOfTriggeredTile()
         {
-            return GetInitialMeepleColor(_triggeredTile.name);
+            return GetColorByID(_triggeredTile.name);
         }
 
         public string GetTriggeredTileID()
@@ -99,18 +99,9 @@ namespace Piece
             return _tileDictionary[tileID].transform.position;
         }
 
-        public string GetInitialMeepleColor(string tileID)
+        public string GetColorByID(string tileID)
         {
-            var initialColor = "";
-            var boundMeepleSet = _tileMeepleDictionary[tileID];
-            foreach (var boundMeepleID in boundMeepleSet)
-            {
-                var meepleColor = MeepleManager.Instance.GetMeepleColor(boundMeepleID);
-                if (meepleColor == "Green") continue;
-                initialColor = meepleColor;
-            }
-
-            return initialColor;
+            return _tileDictionary[tileID].Color; 
         }
 
         public TileInfoData GetTileInfoByTileID(string tileID)
@@ -153,6 +144,16 @@ namespace Piece
             }
 
             return new Vector3(xPosition, 0.6f, zPosition);
+        }
+
+        public string GetTileColorByID(string tileID)
+        {
+            return _tileDictionary[tileID].Color;
+        }
+
+        public void SetTileColorByID(string tileID, string color)
+        {
+            _tileDictionary[tileID].Color = color;
         }
     }
 }
