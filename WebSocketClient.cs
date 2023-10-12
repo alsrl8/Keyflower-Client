@@ -168,11 +168,6 @@ public class WebSocketClient : MonoBehaviour
                     if (MeepleManager.Instance.IsMeepleBelongToUser(moveMeepleData.meepleID)) continue; // Don't move meeple if it belongs to this player.
                     GameManager.Instance.BindMeepleAndTile(moveMeepleData.meepleID, moveMeepleData.tileID);
                     break;
-                case PlayerActionType.SetTileBidNum:
-                    var setTileBidNumData = JsonUtility.FromJson<SetTileBidNumData>(actionData.data);
-                    TileManager.Instance.SetBidNum(setTileBidNumData.tileID, setTileBidNumData.bidNum);
-                    TileManager.Instance.SetBidPlayer(setTileBidNumData.tileID, setTileBidNumData.playerID);
-                    break;
             }
         }
     }

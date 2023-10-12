@@ -76,9 +76,6 @@ namespace Piece
                 var hit = hits[i];
                 var meepleID = hit.collider.gameObject.name;
                 if (!MeepleManager.Instance.IsMeepleBelongToUser(meepleID)) continue;
-                var tileID = MeepleManager.Instance.GetTileIDByMeepleID(meepleID);
-                if (!ReferenceEquals(tileID, "") && TileManager.Instance.IsBidToPlayer(tileID)) continue;
-                
                 playerMeeple = hit.collider.gameObject;
                 break;
             }
@@ -151,8 +148,10 @@ namespace Piece
             {
                 if (IsDraggableToThisTile())
                 {
-                    GameManager.Instance.BindMeepleAndActiveTile(_currentlyDragging.name);
-                    ActionManager.Instance.AddMoveMeepleAction(_currentlyDragging.name, TileManager.Instance.GetActiveTileID());
+                    var meepleID = _currentlyDragging.name;
+                    var tileID = TileManager.Instance.GetActiveTileID();
+                    GameManager.Instance.BindMeepleAndActiveTile(meepleID);
+                    MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
                 }
                 else
                 {
@@ -160,7 +159,7 @@ namespace Piece
                 }
 
                 TileManager.Instance.InactiveOutline();
-                TileManager.Instance.SetTileInactive();
+                TileManager.Instance.SetActiveTileMeshNull();
             }
 
             _currentlyDragging = null;

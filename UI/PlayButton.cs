@@ -24,10 +24,8 @@ namespace UI
         private void OnButtonClick()
         {
             _animator.SetTrigger(Pushed);
-            var validationResult = ActionManager.Instance.ValidateMeepleBidAction();
-            if (!validationResult) return;  // TODO Bid에 필요한 미플 수가 부족하면 턴을 진행시키지 않음(니가 치워)
-            ActionManager.Instance.SendCurrentTurnMeepleMoveAction();
             SetButtonEnable(false);
+            GameManager.Instance.HandlePlayButton();
         }
 
         public void SetButtonEnable(bool enable)

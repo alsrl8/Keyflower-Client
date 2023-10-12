@@ -109,4 +109,11 @@ public class GameManager : MonoBehaviour
         MeepleManager.Instance.UnbindMeeple(meepleID);
         TileManager.Instance.UnbindMeepleFromTile(tileID, meepleID);
     }
+
+    public void HandlePlayButton()
+    {
+        // TODO 플레이 버튼을 눌렀을 때 
+        // Meeple Action을 확인하여 유효한 Meeple Action이라면
+        // 포함된 Meeple들을 그룹화하고 다음 턴으로 넘기는 작업까지 구현
+    }
 }

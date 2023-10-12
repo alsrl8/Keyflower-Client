@@ -10,13 +10,16 @@ namespace Piece
         public GameObject tilesGroup;
         public GameObject tileOutlinePreFab;
         public Material tileOutlineMaterial;
-        private Tile _activeTile;
+        public Mesh meepleMeshRed;
+        public Mesh meepleMeshBlue;
+        public Mesh meepleMeshYellow;
+        public Mesh meepleMeshGreen;
+        public Mesh meepleMeshPurple;
+        private TileMesh _activeTileMesh;
         private GameObject _outlineObj;
         private Dictionary<string, GameObject> _tileDictionary;
-        private Dictionary<string, Tile> _tileScriptDictionary;
         private Dictionary<string, TileInfoData> _tileInfoDictionary;
         private Dictionary<string, HashSet<string>> _tileMeepleDictionary;
-        private Dictionary<string, string> _tileBidPlayerDictionary;
 
         private void Awake()
         {
@@ -27,10 +30,8 @@ namespace Piece
 
                 CreateOutline();
                 _tileDictionary = new Dictionary<string, GameObject>();
-                _tileScriptDictionary = new Dictionary<string, Tile>();
                 _tileInfoDictionary = new Dictionary<string, TileInfoData>();
                 _tileMeepleDictionary = new Dictionary<string, HashSet<string>>();
-                _tileBidPlayerDictionary = new Dictionary<string, string>();
             }
             else
             {
@@ -44,7 +45,6 @@ namespace Piece
             var newTile = Instantiate(tilePrefab, tilePosition, Quaternion.identity, tilesGroup.transform);
             newTile.name = tileData.tileID;
             _tileDictionary.Add(tileData.tileID, newTile);
-            _tileScriptDictionary.Add(tileData.tileID, newTile.transform.GetComponent<Tile>());
             _tileInfoDictionary.Add(tileData.tileID, tileData.tileInfo);
             _tileMeepleDictionary.Add(tileData.tileID, new HashSet<string>());
         }
@@ -54,22 +54,11 @@ namespace Piece
             _tileMeepleDictionary[tileID].Add(meepleID);
             
             var meepleColor = MeepleManager.Instance.GetMeepleColor(meepleID);
-            _tileScriptDictionary[tileID].SetBindMeepleColor(meepleColor);
         }
-
-        public void BindMeepleToTileByID(string meepleID, string tileID)
-        {
-            _tileMeepleDictionary[tileID].Add(meepleID);
-        }
-
+        
         public void UnbindMeepleFromTile(string tileID, string meepleID)
         {
             _tileMeepleDictionary[tileID].Remove(meepleID);
-
-            if (_tileMeepleDictionary[tileID].Count == 0)
-            {
-                _tileScriptDictionary[tileID].SetBindMeepleColor("");
-            }
         }
 
         private void CreateOutline()
@@ -85,19 +74,19 @@ namespace Piece
             _outlineObj.SetActive(false);
         }
 
-        public void SetTileActive(Tile tile)
+        public void SetActiveTileMesh(TileMesh tileMesh)
         {
-            _activeTile = tile;
+            _activeTileMesh = tileMesh;
         }
 
-        public void SetTileInactive()
+        public void SetActiveTileMeshNull()
         {
-            _activeTile = null;
+            _activeTileMesh = null;
         }
 
         public bool IsAnyTileActivate()
         {
-            return !ReferenceEquals(_activeTile, null);
+            return !ReferenceEquals(_activeTileMesh, null);
         }
 
         public void ActiveOutline()
@@ -105,9 +94,9 @@ namespace Piece
             _outlineObj.SetActive(true);
         }
 
-        public void SetOutlinePositionToActiveTile()
+        public void SetOutlinePositionNearByActiveTileMesh()
         {
-            _outlineObj.transform.position = _activeTile.transform.position;
+            _outlineObj.transform.position = _activeTileMesh.transform.position;
         }
 
         public void InactiveOutline()
@@ -117,12 +106,12 @@ namespace Piece
 
         public string GetInitialMeepleColorOfActiveTile()
         {
-            return GetInitialMeepleColor(_activeTile.name);
+            return GetInitialMeepleColor(_activeTileMesh.name);
         }
 
         public string GetActiveTileID()
         {
-            return _activeTile.name;
+            return _activeTileMesh.name;
         }
 
         public string GetInitialMeepleColor(string tileID)
@@ -185,26 +174,6 @@ namespace Piece
             }
 
             return new Vector3(xPosition, 0.6f, zPosition);
-        }
-
-        public void SetBidNum(string tileID, int bidNum)
-        {
-            _tileScriptDictionary[tileID].SetBidNum(bidNum);
-        }
-
-        public void SetBidPlayer(string tileID, string playerID)
-        {
-            _tileBidPlayerDictionary[tileID] = playerID;
-        }
-
-        public bool IsBidToPlayer(string tileID)
-        {
-            return _tileBidPlayerDictionary[tileID] == GameManager.Instance.UserID;
-        }
-
-        public int GetBidNum(string tileID)
-        {
-            return _tileScriptDictionary[tileID].GetBidNum();
         }
     }
 }
