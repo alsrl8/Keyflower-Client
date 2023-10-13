@@ -44,9 +44,13 @@ namespace Piece
             
             TileManager.Instance.UnTriggerTile();
             InactivateOutline();
-
+            
             var meepleID = other.name;
             GameManager.Instance.UnbindMeepleFromTile(meepleID, this.name);
+            if (TileManager.Instance.GetNumberOfMeepleByTileID(this.name) == 0)
+            {
+                TileManager.Instance.SetTileColorNullByID(this.name);
+            }
         }
 
         /// <summary>

@@ -47,11 +47,14 @@ namespace Piece
             _tileMeepleDictionary.Add(tileData.tileID, new HashSet<string>());
         }
 
+        public int GetNumberOfMeepleByTileID(string tileID)
+        {
+            return _tileMeepleDictionary[tileID].Count;
+        }
+
         public void BindMeepleToTile(string tileID, string meepleID)
         {
             _tileMeepleDictionary[tileID].Add(meepleID);
-            
-            var meepleColor = MeepleManager.Instance.GetMeepleColor(meepleID);
         }
         
         public void UnbindMeepleFromTile(string tileID, string meepleID)
@@ -149,6 +152,11 @@ namespace Piece
         public string GetTileColorByID(string tileID)
         {
             return _tileDictionary[tileID].Color;
+        }
+
+        public void SetTileColorNullByID(string tileID)
+        {
+            _tileDictionary[tileID].Color = null;
         }
 
         public void SetTileColorByID(string tileID, string color)
