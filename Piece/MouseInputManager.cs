@@ -1,4 +1,5 @@
-﻿using UI;
+﻿using System.Linq;
+using UI;
 using UnityEngine;
 
 namespace Piece
@@ -145,43 +146,76 @@ namespace Piece
             // Handle triggered meeple before tile.
             if (!ReferenceEquals(_triggeredMeeple, null))
             {
-                // TODO 여기서 미플들을 그룹으로 만듦
-
-                _triggeredMeeple.InactiveOutline();
-                SetTriggeredMeeple(null);
+                DropOnMeepleEvent();
             }
             else if (!ReferenceEquals(_triggeredChest, null))
             {
-                _currentlyDragging.transform.position = _dragStartPosition;
-
-                Chest.Instance.InactivateOutline();
-                SetTriggeredChest(null);
+                DropOnChestEvent();
             }
             else if (TileManager.Instance.IsTileTriggered())
             {
-                if (IsDraggableToTriggeredTile())
-                {
-                    var meepleID = _currentlyDragging.name;
-                    var tileID = TileManager.Instance.GetTriggeredTileID();
-                    var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
-
-                    ChangeTileColor(tileID, meepleID);
-                    GameManager.Instance.BindMeepleAndActiveTile(meepleID);
-                    MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
-                    TileManager.Instance.InactiveOutline(tileID);
-                    TileManager.Instance.UnTriggerTile();
-                    _currentlyDragging.transform.position = new Vector3(tilePosition.x, 0.6f, tilePosition.z - 1.2f);
-                }
-                else
-                {
-                    _currentlyDragging.transform.position = _dragStartPosition;
-                }
+                DropOnTileEvent();
             }
 
             MeepleManager.Instance.InactiveOutline(_currentlyDragging.name);
             _currentlyDragging = null;
             _isDragging = false;
         }
+
+        private void DropOnMeepleEvent()
+        {
+            _currentlyDragging.TryGetComponent<Meeple>(out var meeple);
+            if (meeple.Number + _triggeredMeeple.Number > 6) return;
+            _triggeredMeeple.GroupMeeple(meeple);
+            _triggeredMeeple.InactiveOutline();
+            SetTriggeredMeeple(null);
+        }
+
+        private void DropOnChestEvent()
+        {
+            _currentlyDragging.TryGetComponent<Meeple>(out var meeple);
+            if (meeple.Number == 1)
+            {
+                _currentlyDragging.transform.position = _dragStartPosition;
+            }
+            else
+            {
+                meeple.Number = 1;
+                MoveManager.Instance.MoveToMySide(_currentlyDragging, 0f);
+                foreach (var childMeeple in meeple.ChildrenIDs.Select(childMeepleID => MeepleManager.Instance.GetMeepleByID(childMeepleID)))
+                {
+                    childMeeple.gameObject.SetActive(true);
+                    childMeeple.transform.position = _currentlyDragging.transform.position;
+                    MoveManager.Instance.MoveToMySide(childMeeple.gameObject, 0f);
+                }
+                meeple.ChildrenIDs.Clear();
+            }
+
+            Chest.Instance.InactivateOutline();
+            SetTriggeredChest(null);
+        }
+
+        private void DropOnTileEvent()
+        {
+            if (IsDraggableToTriggeredTile())
+            {
+                var meepleID = _currentlyDragging.name;
+                var tileID = TileManager.Instance.GetTriggeredTileID();
+                var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+
+                ChangeTileColor(tileID, meepleID);
+                GameManager.Instance.BindMeepleAndActiveTile(meepleID);
+                MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
+                TileManager.Instance.InactiveOutline(tileID);
+                TileManager.Instance.UnTriggerTile();
+                _currentlyDragging.transform.position = new Vector3(tilePosition.x, 0.6f, tilePosition.z - 1.2f);
+            }
+            else
+            {
+                _currentlyDragging.transform.position = _dragStartPosition;
+            }
+        }
+        
 
         private static string GetDraggableLayerName() // Currently it's handling only Meeple objects.
         {

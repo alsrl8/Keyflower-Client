@@ -43,6 +43,11 @@ namespace Piece
         {
             meeplesGroup.SetActive(true);
         }
+
+        public Meeple GetMeepleByID(string meepleID)
+        {
+            return _meepleDictionary[meepleID];
+        }
         
 
         public void AddNewMeeple(NewMeepleData meepleData)
@@ -51,7 +56,7 @@ namespace Piece
             var ownerID = meepleData.ownerID;
             var prefab = GetPrefabWithColor(meepleData.color);
             var position = new[] { 12.26f, 0.19f, 6.33f };
-            var rotation = new[] { 0f, 90f, 0f };
+            var rotation = new[] { 0f, -90f, 0f };
             var newMeeple = Instantiate(prefab, new Vector3(position[0], position[1], position[2]), Quaternion.Euler(rotation[0], rotation[1], rotation[2]), meeplesGroup.transform);
             AssignObjectIdToMeeple(newMeeple, meepleID, ownerID);
 

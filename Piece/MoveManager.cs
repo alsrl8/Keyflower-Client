@@ -22,6 +22,14 @@ namespace Piece
             }
         }
 
+        public void MoveToMySide(GameObject targetObject, float delay)
+        {
+            var randomX = Random.Range(-5.0f, 5.0f);
+            var positionY = 0.6f;
+            var randomZ = Random.Range(-9.5f, -9.0f);
+            MoveToPosition(targetObject, new Vector3(randomX, positionY, randomZ), delay);
+        }
+
         public void MoveToPosition(GameObject targetObject, Vector3 targetPosition, float delay)
         {
             StartCoroutine(MoveMeeple(targetObject, targetPosition, delay));
