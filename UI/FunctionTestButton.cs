@@ -1,5 +1,4 @@
-﻿using Piece;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
@@ -19,7 +18,7 @@ namespace UI
 
         private void OnButtonClick()
         {
-            MeepleActionManager.Instance.PrintMeepleActionDictionary();
+            
         }
     }
 }

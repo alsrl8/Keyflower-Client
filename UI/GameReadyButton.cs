@@ -6,6 +6,7 @@ namespace UI
     public class GameReadyButton : MonoBehaviour
     {
         public static GameReadyButton Instance { get; private set; }
+        public GameObject chest;
         private Animator _animator;
         private Button _button;
         
@@ -23,6 +24,7 @@ namespace UI
         {
             Debug.Log("Game Ready!");
             _animator.SetTrigger(Pushed);
+            chest.SetActive(true);
         }
         
         public void SetButtonEnable(bool enable)

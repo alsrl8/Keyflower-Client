@@ -13,7 +13,7 @@ namespace Piece
         public GameObject meeplePurplePrefab;
         public Material meepleTransparentMaterial;
         public GameObject meeplesGroup;
-        // private Dictionary<string, GameObject> _meepleDictionary;
+        
         private Dictionary<string, Meeple> _meepleDictionary;
         private Dictionary<string, string> _meepleColorDictionary;
         private Dictionary<string, GameObject> _myMeepleDictionary;
@@ -26,8 +26,7 @@ namespace Piece
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
-
-                // _meepleDictionary = new Dictionary<string, GameObject>();
+                
                 _meepleDictionary = new Dictionary<string, Meeple>();
                 _myMeepleDictionary = new Dictionary<string, GameObject>();
                 _meepleColorDictionary = new Dictionary<string, string>();
@@ -43,7 +42,12 @@ namespace Piece
         {
             meeplesGroup.SetActive(true);
         }
-        
+
+        public Meeple GetMeepleByID(string meepleID)
+        {
+            return _meepleDictionary[meepleID];
+        }
+
 
         public void AddNewMeeple(NewMeepleData meepleData)
         {
@@ -51,7 +55,7 @@ namespace Piece
             var ownerID = meepleData.ownerID;
             var prefab = GetPrefabWithColor(meepleData.color);
             var position = new[] { 12.26f, 0.19f, 6.33f };
-            var rotation = new[] { 0f, 90f, 0f };
+            var rotation = new[] { 0f, -90f, 0f };
             var newMeeple = Instantiate(prefab, new Vector3(position[0], position[1], position[2]), Quaternion.Euler(rotation[0], rotation[1], rotation[2]), meeplesGroup.transform);
             AssignObjectIdToMeeple(newMeeple, meepleID, ownerID);
 
@@ -67,8 +71,7 @@ namespace Piece
                 newMeeple.GetComponent<MeshRenderer>().material = meepleTransparentMaterial;
                 newMeeple.SetActive(false);
             }
-
-            // _meepleDictionary.Add(meepleID, newMeeple);
+            
             _meepleDictionary.Add(meepleID, newMeeple.GetComponent<Meeple>());
             _meepleColorDictionary.Add(meepleID, meepleData.color);
         }
@@ -130,15 +133,20 @@ namespace Piece
         }
 
 
-        public void BindToTile(string meepleID, string tileID)
+        public void PutOnTile(string meepleID, string tileID)
         {
             _meepleTileDictionary[meepleID] = tileID;
         }
 
-        public void UnbindMeeple(string meepleID)
+        public void ReleaseFromTile(string meepleID)
         {
             if (!_meepleTileDictionary.ContainsKey(meepleID)) return;
             _meepleTileDictionary.Remove(meepleID);
+        }
+
+        public bool IsAttachedToTile(string meepleID)
+        {
+            return _meepleTileDictionary.ContainsKey(meepleID);
         }
     }
 }

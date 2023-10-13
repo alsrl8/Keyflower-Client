@@ -166,7 +166,7 @@ public class WebSocketClient : MonoBehaviour
                 case PlayerActionType.MoveMeeple:
                     var moveMeepleData = JsonUtility.FromJson<MoveMeepleData>(actionData.data);
                     if (MeepleManager.Instance.IsMeepleBelongToUser(moveMeepleData.meepleID)) continue; // Don't move meeple if it belongs to this player.
-                    GameManager.Instance.BindMeepleAndTile(moveMeepleData.meepleID, moveMeepleData.tileID);
+                    GameManager.Instance.BidMeepleToTile(moveMeepleData.meepleID, moveMeepleData.tileID);
                     break;
             }
         }

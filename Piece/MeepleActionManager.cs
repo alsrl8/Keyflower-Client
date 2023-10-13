@@ -45,13 +45,5 @@ namespace Piece
                 TargetTileID = tileID,
             };
         }
-
-        public void PrintMeepleActionDictionary()
-        {
-            foreach (var (meepleID, meepleAction) in _actions)
-            {
-                Debug.Log($"Meeple Action({meepleAction.Type}): meeple({meepleID}), tile({meepleAction.TargetTileID})");
-            }
-        }
     }
 }

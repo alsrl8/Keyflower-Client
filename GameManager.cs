@@ -12,14 +12,12 @@ public class GameManager : MonoBehaviour
     public string UserID { get; set; }
 
     public Queue<Action> Actions;
-    public GameObject chestObject;
     private Animator _startAnimator;
     public GameObject turnIcon;
     private Image _turnIconImage;
     public Sprite[] turnImages;
     private int _currentTurn;
     private int _myTurn;
-    private static readonly int StartTrigger = Animator.StringToHash("Start");
 
     // Singleton pattern
     private void Awake()
@@ -28,7 +26,6 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             Actions = new Queue<Action>();
-            _startAnimator = chestObject.GetComponent<Animator>();
             _turnIconImage = turnIcon.GetComponent<Image>();
             DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
         }
@@ -49,9 +46,7 @@ public class GameManager : MonoBehaviour
     public void GameStart(int myTurn)
     {
         Debug.Log("Game Start!");
-        chestObject.SetActive(true);
         turnIcon.SetActive(true);
-        _startAnimator.SetTrigger(StartTrigger);
         _myTurn = myTurn;
         RoundManager.Instance.StartSpring();
     }
@@ -88,22 +83,22 @@ public class GameManager : MonoBehaviour
         return _currentTurn == _myTurn && _currentTurn > 0;
     }
 
-    public void BindMeepleAndTile(string meepleID, string tileID)
+    public void BidMeepleToTile(string meepleID, string tileID)
     {
-        MeepleManager.Instance.BindToTile(meepleID, tileID);
-        TileManager.Instance.BindMeepleToTile(tileID, meepleID);
+        MeepleManager.Instance.PutOnTile(meepleID, tileID);
+        TileManager.Instance.BidMeepleOnTile(meepleID, tileID);
     }
 
-    public void BindMeepleAndActiveTile(string meepleID)
+    public void BidMeepleToActiveTile(string meepleID)
     {
         var tileID = TileManager.Instance.GetTriggeredTileID();
-        BindMeepleAndTile(meepleID, tileID);
+        BidMeepleToTile(meepleID, tileID);
     }
 
-    public void UnbindMeepleFromTile(string meepleID, string tileID)
+    public void UnBidMeepleFromTile(string meepleID, string tileID)
     {
-        MeepleManager.Instance.UnbindMeeple(meepleID);
-        TileManager.Instance.UnbindMeepleFromTile(tileID, meepleID);
+        MeepleManager.Instance.ReleaseFromTile(meepleID);
+        TileManager.Instance.UnBidFromTile(tileID);
     }
 
     public void HandlePlayButton()
