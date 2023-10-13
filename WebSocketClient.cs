@@ -43,10 +43,6 @@ public class WebSocketClient : MonoBehaviour
             {
                 case ServerMessageType.CommonMessage:
                     break;
-                case ServerMessageType.OtherPlayerAction:
-                    var otherPlayerActionData = JsonUtility.FromJson<OtherPlayerActionData>(serverMessage.data);
-                    HandleOtherPlayerAction(otherPlayerActionData);
-                    break;
                 case ServerMessageType.TurnChange:
                     var turnChangeData = JsonUtility.FromJson<TurnChangeData>(serverMessage.data);
                     HandleTurnChange(turnChangeData.turn);
@@ -86,6 +82,7 @@ public class WebSocketClient : MonoBehaviour
         if (!_webSocket.IsAlive) return;
 
         var data = JsonUtility.ToJson(serverMessage);
+        Debug.Log($"Send message to server: {data}");
         _webSocket.Send(data);
     }
 
@@ -155,20 +152,5 @@ public class WebSocketClient : MonoBehaviour
     {
         var myTurn = gameReadyData.playerTurn;
         GameManager.Instance.GameStart(myTurn);
-    }
-
-    private void HandleOtherPlayerAction(OtherPlayerActionData otherPlayerActionData)
-    {
-        foreach (var actionData in otherPlayerActionData.actions)
-        {
-            switch (actionData.type)
-            {
-                case PlayerActionType.MoveMeeple:
-                    var moveMeepleData = JsonUtility.FromJson<MoveMeepleData>(actionData.data);
-                    if (MeepleManager.Instance.IsMeepleBelongToUser(moveMeepleData.meepleID)) continue; // Don't move meeple if it belongs to this player.
-                    GameManager.Instance.BidMeepleToTile(moveMeepleData.meepleID, moveMeepleData.tileID);
-                    break;
-            }
-        }
     }
 }

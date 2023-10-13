@@ -38,6 +38,34 @@ namespace Piece
             }
         }
 
+        public void SendMeepleActions()
+        {
+            var playerID = GameManager.Instance.UserID;
+            var detailMeepleActions = new List<DetailMeepleActionData>();
+            foreach (var (meepleID, action) in _actions)
+            {
+                detailMeepleActions.Add(new DetailMeepleActionData
+                {
+                    type = action.Type,
+                    meepleID = action.MeepleID,
+                    targetTileID = action.TargetTileID,
+                    number = action.Number,
+                });
+            }
+            var meepleActionData = new MeepleActionData
+            {
+                playerID = playerID,
+                detailMeepleActions = detailMeepleActions,
+            };
+            WebSocketClient.Instance.SendMessageToServer(new ServerMessage
+            {
+                type = ServerMessageType.MeepleAction,
+                data = JsonUtility.ToJson(meepleActionData)
+            });
+            
+            _actions.Clear();
+        }
+
         public void AddMeepleBidAction(string meepleID, string tileID)
         {
             _actions[meepleID] = new MeepleAction
