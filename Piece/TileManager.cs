@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Piece
@@ -18,7 +19,6 @@ namespace Piece
         private Tile _triggeredTile;
         private Dictionary<string, Tile> _tileDictionary;
         private Dictionary<string, TileInfoData> _tileInfoDictionary;
-        private Dictionary<string, HashSet<string>> _tileMeepleDictionary;
 
         private void Awake()
         {
@@ -29,7 +29,6 @@ namespace Piece
                 
                 _tileDictionary = new Dictionary<string, Tile>();
                 _tileInfoDictionary = new Dictionary<string, TileInfoData>();
-                _tileMeepleDictionary = new Dictionary<string, HashSet<string>>();
             }
             else
             {
@@ -44,22 +43,24 @@ namespace Piece
             tileObj.name = tileData.tileID;
             _tileDictionary.Add(tileData.tileID, tileObj.GetComponent<Tile>());
             _tileInfoDictionary.Add(tileData.tileID, tileData.tileInfo);
-            _tileMeepleDictionary.Add(tileData.tileID, new HashSet<string>());
         }
 
-        public int GetNumberOfMeepleByTileID(string tileID)
+        public void BidMeepleOnTile(string meepleID, string tileID)
         {
-            return _tileMeepleDictionary[tileID].Count;
+            var playerID = GameManager.Instance.UserID;
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID);
         }
 
-        public void BindMeepleToTile(string tileID, string meepleID)
+        public void UnBidFromTile(string tileID)
         {
-            _tileMeepleDictionary[tileID].Add(meepleID);
+            var playerID = GameManager.Instance.UserID;
+            _tileDictionary[tileID].RemoveBidMeeple(playerID);
         }
-        
-        public void UnbindMeepleFromTile(string tileID, string meepleID)
+
+        public string GetMyMeepleID(string tileID)
         {
-            _tileMeepleDictionary[tileID].Remove(meepleID);
+            var tile = _tileDictionary[tileID];
+            return tile.GetBidMeepleByPlayerID(GameManager.Instance.UserID);
         }
 
         public void TriggerTile(string tileID)
@@ -104,7 +105,7 @@ namespace Piece
 
         public string GetColorByID(string tileID)
         {
-            return _tileDictionary[tileID].Color; 
+            return _tileDictionary[tileID].GetColor(); 
         }
 
         public TileInfoData GetTileInfoByTileID(string tileID)
@@ -147,21 +148,6 @@ namespace Piece
             }
 
             return new Vector3(xPosition, 0.6f, zPosition);
-        }
-
-        public string GetTileColorByID(string tileID)
-        {
-            return _tileDictionary[tileID].Color;
-        }
-
-        public void SetTileColorNullByID(string tileID)
-        {
-            _tileDictionary[tileID].Color = null;
-        }
-
-        public void SetTileColorByID(string tileID, string color)
-        {
-            _tileDictionary[tileID].Color = color;
         }
     }
 }

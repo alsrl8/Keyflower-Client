@@ -61,6 +61,7 @@ namespace Piece
             else if (!IsComponentMeeple(other)) return;
             else if (!IsMeepleColorSame(other)) return;
             else if (IsAlreadyTriggeredMeeple()) return;
+            else if (MeepleManager.Instance.IsAttachedToTile(this.name)) return;
 
             MouseInputManager.Instance.SetTriggeredMeeple(this);
             ActivateOutline();
@@ -72,6 +73,7 @@ namespace Piece
             else if (IsThisDragged()) return;
             else if (!IsComponentMeeple(other)) return;
             else if (!IsMeepleColorSame(other)) return;
+            else if (MeepleManager.Instance.IsAttachedToTile(other.name)) return;
 
             MouseInputManager.Instance.SetTriggeredMeeple(null);
             InactiveOutline();

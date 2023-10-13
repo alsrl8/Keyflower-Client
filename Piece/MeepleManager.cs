@@ -13,7 +13,7 @@ namespace Piece
         public GameObject meeplePurplePrefab;
         public Material meepleTransparentMaterial;
         public GameObject meeplesGroup;
-        // private Dictionary<string, GameObject> _meepleDictionary;
+        
         private Dictionary<string, Meeple> _meepleDictionary;
         private Dictionary<string, string> _meepleColorDictionary;
         private Dictionary<string, GameObject> _myMeepleDictionary;
@@ -26,8 +26,7 @@ namespace Piece
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
-
-                // _meepleDictionary = new Dictionary<string, GameObject>();
+                
                 _meepleDictionary = new Dictionary<string, Meeple>();
                 _myMeepleDictionary = new Dictionary<string, GameObject>();
                 _meepleColorDictionary = new Dictionary<string, string>();
@@ -48,7 +47,7 @@ namespace Piece
         {
             return _meepleDictionary[meepleID];
         }
-        
+
 
         public void AddNewMeeple(NewMeepleData meepleData)
         {
@@ -72,8 +71,7 @@ namespace Piece
                 newMeeple.GetComponent<MeshRenderer>().material = meepleTransparentMaterial;
                 newMeeple.SetActive(false);
             }
-
-            // _meepleDictionary.Add(meepleID, newMeeple);
+            
             _meepleDictionary.Add(meepleID, newMeeple.GetComponent<Meeple>());
             _meepleColorDictionary.Add(meepleID, meepleData.color);
         }
@@ -135,15 +133,20 @@ namespace Piece
         }
 
 
-        public void BindToTile(string meepleID, string tileID)
+        public void PutOnTile(string meepleID, string tileID)
         {
             _meepleTileDictionary[meepleID] = tileID;
         }
 
-        public void UnbindMeeple(string meepleID)
+        public void ReleaseFromTile(string meepleID)
         {
             if (!_meepleTileDictionary.ContainsKey(meepleID)) return;
             _meepleTileDictionary.Remove(meepleID);
+        }
+
+        public bool IsAttachedToTile(string meepleID)
+        {
+            return _meepleTileDictionary.ContainsKey(meepleID);
         }
     }
 }
