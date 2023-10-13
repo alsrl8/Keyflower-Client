@@ -147,8 +147,8 @@ namespace Piece
             {
                 // TODO 여기서 미플들을 그룹으로 만듦
 
-                SetTriggeredMeeple(null);
                 _triggeredMeeple.InactiveOutline();
+                SetTriggeredMeeple(null);
             }
             else if (!ReferenceEquals(_triggeredChest, null))
             {
