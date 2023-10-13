@@ -14,6 +14,8 @@ namespace Piece
         public MeepleActionType Type { get; set; }
         public string MeepleID { get; set; }
         public string TargetTileID { get; set; }
+
+        public int Number { get; set; }
     }
 
     public class MeepleActionManager : MonoBehaviour
@@ -43,7 +45,21 @@ namespace Piece
                 Type = MeepleActionType.Bid,
                 MeepleID = meepleID,
                 TargetTileID = tileID,
+                Number = MeepleManager.Instance.GetMeepleByID(meepleID).Number,
             };
+        }
+
+        public void RemoveMeepleAction(string meepleID)
+        {
+            _actions.Remove(meepleID);
+        }
+
+        public void PrintAllActions()
+        {
+            foreach (var (meepleID, action) in _actions)
+            {
+                Debug.Log($"meeple({meepleID})'s action. {action.Type} meeple({action.MeepleID})[{action.Number}] tile({action.TargetTileID})");
+            }
         }
     }
 }

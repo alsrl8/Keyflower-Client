@@ -156,10 +156,6 @@ namespace Piece
             {
                 DropOnTileEvent();
             }
-            // else
-            // {
-            //     DropOnEmptyPlaceEvent();
-            // }
 
             MeepleManager.Instance.InactiveOutline(_currentlyDragging.name);
             _currentlyDragging = null;
@@ -222,14 +218,7 @@ namespace Piece
             var tileID = MeepleManager.Instance.GetTileIDByMeepleID(meepleID);
             if (tileID is "") return;
             GameManager.Instance.UnBidMeepleFromTile(meepleID, tileID);
-        }
-
-        private void DropOnEmptyPlaceEvent()
-        {
-            var meepleID = _currentlyDragging.name;
-            var tileID = MeepleManager.Instance.GetTileIDByMeepleID(meepleID);
-            if (tileID is "") return;
-            GameManager.Instance.UnBidMeepleFromTile(meepleID, tileID);
+            MeepleActionManager.Instance.RemoveMeepleAction(meepleID);
         }
 
         private void HandleGroupToBidMeeple(string tileID)
@@ -256,6 +245,7 @@ namespace Piece
                 var myMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
                 if (draggingMeeple.Number + myMeeple.Number > 6) return;
                 myMeeple.GroupMeeple(draggingMeeple);
+                MeepleActionManager.Instance.AddMeepleBidAction(myMeeple.name, tileID);
             }
         }
 
