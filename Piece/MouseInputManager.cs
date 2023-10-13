@@ -12,6 +12,7 @@ namespace Piece
         private bool _isDragging;
         private GameObject _currentlyDragging;
         private Meeple _triggeredMeeple;
+        private Chest _triggeredChest;
         private Vector3 _dragStartPosition;
 
         // Singleton pattern
@@ -39,7 +40,7 @@ namespace Piece
             if (Input.GetMouseButtonDown(0))
             {
                 if (TileDialogue.Instance.IsTileDialogueAlive()) return;
-                
+
                 StartDragging();
                 if (_isDragging)
                 {
@@ -103,14 +104,14 @@ namespace Piece
             var position = _currentlyDragging.transform.position + Vector3.up * 0.4f;
             _currentlyDragging.transform.position = position;
         }
-        
+
 
         private void HandleTileClickEvent()
         {
             // Handle tile click event
             var layerMask = 1 << LayerMask.NameToLayer(GetTileLayerName());
             if (!Physics.Raycast(_ray, out var hit, Mathf.Infinity, layerMask)) return;
-            
+
             var tileID = hit.collider.gameObject.name;
             var tileInfo = TileManager.Instance.GetTileInfoByTileID(tileID);
             TileDialogue.Instance.SetTileInfo(tileInfo);
@@ -140,13 +141,21 @@ namespace Piece
             var transformPosition = _currentlyDragging.transform.position;
             _currentlyDragging.transform.position = new Vector3(transformPosition.x, 0.6f, transformPosition.z);
             Cursor.visible = true;
-            
+
             // Handle triggered meeple before tile.
             if (!ReferenceEquals(_triggeredMeeple, null))
             {
-                _triggeredMeeple.InactiveOutline();
                 // TODO 여기서 미플들을 그룹으로 만듦
+
                 SetTriggeredMeeple(null);
+                _triggeredMeeple.InactiveOutline();
+            }
+            else if (!ReferenceEquals(_triggeredChest, null))
+            {
+                _currentlyDragging.transform.position = _dragStartPosition;
+
+                Chest.Instance.InactivateOutline();
+                SetTriggeredChest(null);
             }
             else if (TileManager.Instance.IsTileTriggered())
             {
@@ -155,9 +164,9 @@ namespace Piece
                     var meepleID = _currentlyDragging.name;
                     var tileID = TileManager.Instance.GetTriggeredTileID();
                     var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
-                    
+
                     ChangeTileColor(tileID, meepleID);
-                    GameManager.Instance.BindMeepleAndActiveTile(meepleID); 
+                    GameManager.Instance.BindMeepleAndActiveTile(meepleID);
                     MeepleActionManager.Instance.AddMeepleBidAction(meepleID, tileID);
                     TileManager.Instance.InactiveOutline(tileID);
                     TileManager.Instance.UnTriggerTile();
@@ -168,7 +177,7 @@ namespace Piece
                     _currentlyDragging.transform.position = _dragStartPosition;
                 }
             }
-            
+
             MeepleManager.Instance.InactiveOutline(_currentlyDragging.name);
             _currentlyDragging = null;
             _isDragging = false;
@@ -219,6 +228,16 @@ namespace Piece
         public void SetTriggeredMeeple(Meeple triggeredMeeple)
         {
             _triggeredMeeple = triggeredMeeple;
+        }
+
+        public Chest GetTriggeredChest()
+        {
+            return _triggeredChest;
+        }
+
+        public void SetTriggeredChest(Chest triggeredChest)
+        {
+            _triggeredChest = triggeredChest;
         }
     }
 }

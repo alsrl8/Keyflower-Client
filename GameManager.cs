@@ -12,14 +12,12 @@ public class GameManager : MonoBehaviour
     public string UserID { get; set; }
 
     public Queue<Action> Actions;
-    public GameObject chestObject;
     private Animator _startAnimator;
     public GameObject turnIcon;
     private Image _turnIconImage;
     public Sprite[] turnImages;
     private int _currentTurn;
     private int _myTurn;
-    private static readonly int StartTrigger = Animator.StringToHash("Start");
 
     // Singleton pattern
     private void Awake()
@@ -28,7 +26,6 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             Actions = new Queue<Action>();
-            _startAnimator = chestObject.GetComponent<Animator>();
             _turnIconImage = turnIcon.GetComponent<Image>();
             DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
         }
@@ -49,9 +46,7 @@ public class GameManager : MonoBehaviour
     public void GameStart(int myTurn)
     {
         Debug.Log("Game Start!");
-        chestObject.SetActive(true);
         turnIcon.SetActive(true);
-        _startAnimator.SetTrigger(StartTrigger);
         _myTurn = myTurn;
         RoundManager.Instance.StartSpring();
     }
