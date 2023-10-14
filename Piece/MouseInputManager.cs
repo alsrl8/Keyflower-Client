@@ -199,7 +199,7 @@ namespace Piece
         private void DropOnTileEvent()
         {
             var tileID = TileManager.Instance.GetTriggeredTileID();
-            if (IsDraggingMeepleHasSameColorWithTile())
+            if (IsDraggingMeepleHasSameColorWithTile() && IsDraggingMeepleNumBiggerThanTileBidNum(tileID))
             {
                 HandleGroupToBidMeeple(tileID);
             }
@@ -244,6 +244,7 @@ namespace Piece
                 _currentlyDragging.TryGetComponent<Meeple>(out var draggingMeeple);
                 var myMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
                 if (draggingMeeple.Number + myMeeple.Number > 6) return;
+                TileManager.Instance.SetBidNumByTileID(tileID, draggingMeeple.Number);
                 myMeeple.GroupMeeple(draggingMeeple);
                 MeepleActionManager.Instance.AddMeepleBidAction(myMeeple.name, tileID);
             }
@@ -266,6 +267,13 @@ namespace Piece
             if (meepleColor == "Green") return true;
             var tileColor = TileManager.Instance.GetColorOfTriggeredTile();
             return ReferenceEquals(tileColor, null) || tileColor == meepleColor;
+        }
+
+        private bool IsDraggingMeepleNumBiggerThanTileBidNum(string tileID)
+        {
+            var meepleNum = MeepleManager.Instance.GetMeepleByID(_currentlyDragging.name).Number;
+            var bidNum = TileManager.Instance.GetBidNumByTileID(tileID);
+            return bidNum < meepleNum;
         }
 
         public bool IsDraggingMeeple()

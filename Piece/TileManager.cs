@@ -154,5 +154,15 @@ namespace Piece
 
             return new Vector3(xPosition, 0.6f, zPosition);
         }
+
+        public int GetBidNumByTileID(string tileID)
+        {
+            return _tileDictionary[tileID].BidNum;
+        }
+
+        public void SetBidNumByTileID(string tileID, int bidNum)
+        {
+            _tileDictionary[tileID].BidNum = bidNum;
+        }
     }
 }
