@@ -7,7 +7,7 @@ namespace UI
     public class MaterialManager : MonoBehaviour
     {
         public static MaterialManager Instance { get; private set; }
-        [FormerlySerializedAs("materials")] public Material[] _materials;
+        public Material[] materials;
 
         private void Awake()
         {
@@ -24,12 +24,12 @@ namespace UI
 
         public Material GetNumberMaterial(int num)
         {
-            if (num >= _materials.Length)
+            if (num >= materials.Length)
             {
-                num = _materials.Length - 1;
+                num = materials.Length - 1;
             }
 
-            return _materials[num];
+            return materials[num];
         }
     }
 }
