@@ -104,4 +104,5 @@ public class DetailMeepleActionData
     public string meepleID;
     public string targetTileID;
     public int number;
+    public List<string> childrenMeepleIDs;
 }

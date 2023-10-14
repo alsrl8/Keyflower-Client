@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Piece
@@ -14,8 +15,8 @@ namespace Piece
         public MeepleActionType Type { get; set; }
         public string MeepleID { get; set; }
         public string TargetTileID { get; set; }
-
         public int Number { get; set; }
+        public List<string> ChildrenMeepleIDs;
     }
 
     public class MeepleActionManager : MonoBehaviour
@@ -50,6 +51,7 @@ namespace Piece
                     meepleID = action.MeepleID,
                     targetTileID = action.TargetTileID,
                     number = action.Number,
+                    childrenMeepleIDs = action.ChildrenMeepleIDs,
                 });
             }
             var meepleActionData = new MeepleActionData
@@ -74,6 +76,7 @@ namespace Piece
                 MeepleID = meepleID,
                 TargetTileID = tileID,
                 Number = MeepleManager.Instance.GetMeepleByID(meepleID).Number,
+                ChildrenMeepleIDs = MeepleManager.Instance.GetMeepleByID(meepleID).ChildrenIDs.ToList(),
             };
         }
 
