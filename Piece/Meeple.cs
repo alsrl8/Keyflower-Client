@@ -20,7 +20,7 @@ namespace Piece
             }
         }
 
-        public List<string> ChildrenIDs { get; set; }
+        public List<string> ChildrenIDs { get; set; } // TODO 이거 필요한지 검토
         private MeshRenderer _numberLogo;
 
         private void Awake()

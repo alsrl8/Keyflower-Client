@@ -45,6 +45,11 @@ namespace Piece
             _tileInfoDictionary.Add(tileData.tileID, tileData.tileInfo);
         }
 
+        public void BidOtherMeepleOnTile(string playerID, string meepleID, string tileID)
+        {
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID);
+        }
+
         public void BidMeepleOnTile(string meepleID, string tileID)
         {
             var playerID = GameManager.Instance.UserID;

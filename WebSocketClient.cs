@@ -53,6 +53,10 @@ public class WebSocketClient : MonoBehaviour
                 case ServerMessageType.NewTile:
                     NewTile(serverMessage.data);
                     break;
+                case ServerMessageType.MeepleAction:
+                    var meepleActionData = JsonUtility.FromJson<MeepleActionData>(serverMessage.data);
+                    HandleMeepleAction(meepleActionData);
+                    break;
                 case ServerMessageType.Register:
                     var userID = GetIdFromServerMessageData(serverMessage.data);
                     SetUserID(userID);
@@ -139,7 +143,7 @@ public class WebSocketClient : MonoBehaviour
             case "Winter":
                 RoundManager.Instance.StartWinter();
                 break;
-        }    
+        }
     }
 
     private GameReadyData GetGameReadyDataFromServerMessageData(string data)
@@ -152,5 +156,25 @@ public class WebSocketClient : MonoBehaviour
     {
         var myTurn = gameReadyData.playerTurn;
         GameManager.Instance.GameStart(myTurn);
+    }
+
+    private void HandleMeepleAction(MeepleActionData meepleActionData)
+    {
+        var actions = meepleActionData.detailMeepleActions;
+        foreach (var action in actions)
+        {
+            if (action.type == MeepleActionType.Bid)
+            {
+                var meepleID = action.meepleID;
+                var tileID = action.targetTileID;
+                var meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+                var meepleObj = meeple.gameObject;
+                var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+                meeple.Number = action.number;
+                meepleObj.SetActive(true);
+                GameManager.Instance.BidOtherMeepleToTile(meepleActionData.playerID, meepleID, tileID);
+                MoveManager.Instance.MoveMeepleToTileSide(meepleObj, tilePosition, 0f);
+            }
+        }
     }
 }

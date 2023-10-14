@@ -82,6 +82,12 @@ public class GameManager : MonoBehaviour
     {
         return _currentTurn == _myTurn && _currentTurn > 0;
     }
+    
+    public void BidOtherMeepleToTile(string playerID, string meepleID, string tileID)
+    {
+        MeepleManager.Instance.PutOnTile(meepleID, tileID);
+        TileManager.Instance.BidOtherMeepleOnTile(playerID, meepleID, tileID);
+    }
 
     public void BidMeepleToTile(string meepleID, string tileID)
     {

@@ -38,6 +38,14 @@ namespace Piece
             MoveToPosition(targetObject, new Vector3(positionX, positionY, positionZ), delay);
         }
 
+        public void MoveMeepleToTileSide(GameObject targetObject, Vector3 tilePosition, float delay)
+        {
+            var positionX = tilePosition.x - 1.15f;
+            var positionY = 0.6f;
+            var positionZ = tilePosition.z - 1f;
+            MoveToPosition(targetObject, new Vector3(positionX, positionY, positionZ), delay);
+        }
+
         public void MoveToPosition(GameObject targetObject, Vector3 targetPosition, float delay)
         {
             StartCoroutine(MoveMeeple(targetObject, targetPosition, delay));
