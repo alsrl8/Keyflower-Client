@@ -78,7 +78,7 @@ namespace Piece
                 var hit = hits[i];
                 var meepleID = hit.collider.gameObject.name;
                 if (!MeepleManager.Instance.IsMeepleBelongToUser(meepleID)) continue;
-                else if (MeepleManager.Instance.IsWinningOnTile(meepleID)) continue;
+                else if (MeepleManager.Instance.IsAttachedToTile(meepleID)) continue;
                 clickedMeeple = hit.collider.gameObject;
                 break;
             }
