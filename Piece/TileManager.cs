@@ -46,15 +46,23 @@ namespace Piece
             _tileInfoDictionary.Add(tileData.tileID, tileData.tileInfo);
         }
 
-        public void BidOtherMeepleOnTile(string playerID, string meepleID, string tileID)
+        public void BidFirstOtherMeepleOnTile(string playerID, string meepleID, string tileID)
         {
-            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID);
+            var meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, meeple.Number);
         }
 
-        public void BidMeepleOnTile(string meepleID, string tileID)
+        public void BidFirstMeepleOnTile(string meepleID, string tileID)
         {
             var playerID = GameManager.Instance.UserID;
-            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID);
+            var firstBidNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, firstBidNum);
+        }
+
+        public void BidMoreOtherMeepleOnTile(string playerID, string tileID, int bidNum)
+        {
+            var meepleID = _tileDictionary[tileID].GetBidMeepleByPlayerID(playerID);
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, bidNum);
         }
 
         public void UnBidFromTile(string tileID)
@@ -164,11 +172,11 @@ namespace Piece
             return _tileDictionary[tileID].BidNum;
         }
 
-        public void SetBidMeeple(string meepleID, string tileID)
+        public void SetBidMeeple(string meepleID, string tileID, int newBidNum)
         {
             var tile = _tileDictionary[tileID];
             var playerID = GameManager.Instance.UserID;
-            tile.SetBidMeeple(playerID, meepleID);
+            tile.SetBidMeeple(playerID, meepleID, newBidNum);
         }
 
         public string GetBidWinnerByTileID(string tileID)

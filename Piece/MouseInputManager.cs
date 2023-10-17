@@ -262,7 +262,7 @@ namespace Piece
 
             if (bidMeepleID is "")
             {
-                GameManager.Instance.BidMeepleToActiveTile(draggingMeepleID);
+                GameManager.Instance.BidFirstMeepleToActiveTile(draggingMeepleID);
                 MeepleActionManager.Instance.AddMeepleBidAction(draggingMeepleID, tileID);
                 _currentlyDragging.transform.position = new Vector3(tilePosition.x, 0.6f, tilePosition.z - 1.2f);
             }
@@ -271,9 +271,9 @@ namespace Piece
                 _currentlyDragging.TryGetComponent<Meeple>(out var draggingMeeple);
                 var myMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
                 if (draggingMeeple.Number + myMeeple.Number > 6) return;
-                TileManager.Instance.SetBidMeeple(draggingMeeple.name, tileID);
+                TileManager.Instance.SetBidMeeple(draggingMeeple.name, tileID, draggingMeeple.Number);
                 myMeeple.GroupMeeple(draggingMeeple);
-                MeepleActionManager.Instance.AddMeepleBidAction(myMeeple.name, tileID);
+                MeepleActionManager.Instance.AddMeepleBidMoreAction(myMeeple.name, tileID);
             }
         }
 

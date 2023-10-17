@@ -167,17 +167,32 @@ public class WebSocketClient : MonoBehaviour
         var actions = meepleActionData.detailMeepleActions;
         foreach (var action in actions)
         {
-            if (action.type == MeepleActionType.Bid)
+            string meepleID, tileID;
+            Meeple meeple;
+            GameObject meepleObj;
+
+            switch (action.type)
             {
-                var meepleID = action.meepleID;
-                var tileID = action.targetTileID;
-                var meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
-                var meepleObj = meeple.gameObject;
-                var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
-                meeple.Number = action.number;
-                meepleObj.SetActive(true);
-                GameManager.Instance.BidOtherMeepleToTile(meepleActionData.playerID, meepleID, tileID);
-                MoveManager.Instance.MoveMeepleToTileSide(meepleObj, tilePosition, 0f);
+                case MeepleActionType.Bid:
+                    meepleID = action.meepleID;
+                    tileID = action.targetTileID;
+                    meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+                    meepleObj = meeple.gameObject;
+                    var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+                    meeple.Number = action.number;
+                    meepleObj.SetActive(true);
+                    GameManager.Instance.BidOtherFirstMeepleToTile(meepleActionData.playerID, meepleID, tileID);
+                    MoveManager.Instance.MoveMeepleToTileSide(meepleObj, tilePosition, 0f);
+                    break;
+                case MeepleActionType.Play:
+                    break;
+                case MeepleActionType.BidMore:
+                    meepleID = action.meepleID;
+                    tileID = action.targetTileID;
+                    meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+                    meeple.Number += action.number;
+                    GameManager.Instance.BidOtherMoreMeepleToTile(meepleActionData.playerID, tileID, action.number);
+                    break;
             }
         }
     }

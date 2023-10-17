@@ -83,22 +83,27 @@ public class GameManager : MonoBehaviour
         return _currentTurn == _myTurn && _currentTurn > 0;
     }
     
-    public void BidOtherMeepleToTile(string playerID, string meepleID, string tileID)
+    public void BidOtherFirstMeepleToTile(string playerID, string meepleID, string tileID)
     {
         MeepleManager.Instance.PutOnTile(meepleID, tileID);
-        TileManager.Instance.BidOtherMeepleOnTile(playerID, meepleID, tileID);
+        TileManager.Instance.BidFirstOtherMeepleOnTile(playerID, meepleID, tileID);
     }
 
-    public void BidMeepleToTile(string meepleID, string tileID)
+    public void BidOtherMoreMeepleToTile(string playerID, string tileID, int bidNum)
+    {
+        TileManager.Instance.BidMoreOtherMeepleOnTile(playerID, tileID, bidNum);
+    }
+
+    public void BidFirstMeepleToTile(string meepleID, string tileID)
     {
         MeepleManager.Instance.PutOnTile(meepleID, tileID);
-        TileManager.Instance.BidMeepleOnTile(meepleID, tileID);
+        TileManager.Instance.BidFirstMeepleOnTile(meepleID, tileID);
     }
 
-    public void BidMeepleToActiveTile(string meepleID)
+    public void BidFirstMeepleToActiveTile(string meepleID)
     {
         var tileID = TileManager.Instance.GetTriggeredTileID();
-        BidMeepleToTile(meepleID, tileID);
+        BidFirstMeepleToTile(meepleID, tileID);
     }
 
     public void UnBidMeepleFromTile(string meepleID, string tileID)

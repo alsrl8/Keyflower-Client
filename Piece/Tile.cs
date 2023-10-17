@@ -90,14 +90,13 @@ namespace Piece
             return _playerBidMeepleDictionary.TryGetValue(playerID, out var value) ? value : "";
         }
 
-        public void SetBidMeeple(string playerID, string meepleID)
+        public void SetBidMeeple(string playerID, string meepleID, int bidNum)
         {
             _playerBidMeepleDictionary[playerID] = meepleID;
-            var meepleNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
-            if (BidNum < meepleNum)
+            if (BidNum < bidNum)
             {
                 BidWinner = playerID;
-                BidNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+                BidNum = bidNum;
             }
         }
 

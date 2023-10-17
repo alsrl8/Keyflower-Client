@@ -8,6 +8,7 @@ namespace Piece
     {
         Bid,
         Play,
+        BidMore,
     }
 
     public class MeepleAction
@@ -76,6 +77,18 @@ namespace Piece
                 MeepleID = meepleID,
                 TargetTileID = tileID,
                 Number = MeepleManager.Instance.GetMeepleByID(meepleID).Number,
+                ChildrenMeepleIDs = MeepleManager.Instance.GetMeepleByID(meepleID).ChildrenIDs.ToList(),
+            };
+        }
+
+        public void AddMeepleBidMoreAction(string meepleID, string tileID)
+        {
+            _actions[meepleID] = new MeepleAction
+            {
+                Type = MeepleActionType.BidMore,
+                MeepleID = meepleID,
+                TargetTileID = tileID,
+                Number = TileManager.Instance.GetBidNumByTileID(tileID),
                 ChildrenMeepleIDs = MeepleManager.Instance.GetMeepleByID(meepleID).ChildrenIDs.ToList(),
             };
         }
