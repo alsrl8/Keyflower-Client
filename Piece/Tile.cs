@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Piece
 {
@@ -8,7 +10,29 @@ namespace Piece
         public GameObject outline;
         public GameObject bidNumLogo;
         public GameObject playNumLogo;
+        private MeshRenderer _bidNumLogo;
+        private MeshRenderer _playNumLogo;
+        public string BidWinner { get; set; }
         private int _bidNum;
+        public int BidNum
+        {
+            get => _bidNum;
+            set
+            {
+                _bidNum = value;
+                if (_bidNum == 0)
+                {
+                    bidNumLogo.SetActive(false);
+                }
+                else
+                {
+                    bidNumLogo.SetActive(true);
+                    var numberMaterial = MaterialManager.Instance.GetNumberMaterial(BidNum);
+                    _bidNumLogo.material = numberMaterial;
+                }
+            }
+        }
+
         private int _playNum;
         private Dictionary<string, string> _playerBidMeepleDictionary;
         private Dictionary<string, string> _playerPlayMeepleDictionary;
@@ -20,6 +44,8 @@ namespace Piece
             _meepleMeshFilter = transform.Find("BoundMeeple").GetComponent<MeshFilter>();
             _playerBidMeepleDictionary = new Dictionary<string, string>();
             _playerPlayMeepleDictionary = new Dictionary<string, string>();
+            _bidNumLogo = bidNumLogo.GetComponent<MeshRenderer>();
+            _playNumLogo = playNumLogo.GetComponent<MeshRenderer>();
         }
 
         public void ActivateOutline()
@@ -64,14 +90,30 @@ namespace Piece
             return _playerBidMeepleDictionary.TryGetValue(playerID, out var value) ? value : "";
         }
 
-        public void SetBidMeeple(string playerID, string meepleID)
+        public void SetBidMeeple(string playerID, string meepleID, int bidNum)
         {
             _playerBidMeepleDictionary[playerID] = meepleID;
+            if (BidNum < bidNum)
+            {
+                BidWinner = playerID;
+                BidNum = bidNum;
+            }
         }
 
         public void RemoveBidMeeple(string playerID)
         {
             _playerBidMeepleDictionary.Remove(playerID);
+            var maxBidNum = 0;
+            foreach (var (_, bidMeepleID) in _playerBidMeepleDictionary)
+            {
+                var meepleNum = MeepleManager.Instance.GetMeepleByID(bidMeepleID).Number;
+                if (maxBidNum < meepleNum)
+                {
+                    maxBidNum = meepleNum;
+                }
+            }
+
+            BidNum = maxBidNum;
         }
 
         public string GetPlayerMeepleByPlayerID(string playerID)
@@ -119,6 +161,15 @@ namespace Piece
             }
 
             return color;
+        }
+
+        public void SetInactiveBidMeeples()
+        {
+            foreach (var (playerID, bidMeepleID) in _playerBidMeepleDictionary)
+            {
+                var bidMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
+                bidMeeple.gameObject.SetActive(false);
+            }
         }
     }
 }

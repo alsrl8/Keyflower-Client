@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Piece;
 
 [Serializable]
 public class ServerMessage
@@ -23,32 +24,17 @@ public static class ServerMessageType
     public const string SeasonChange = "SeasonChange";
     public const string NewMeeple = "NewMeeple";
     public const string NewTile = "NewTile";
-    public const string MoveMeeple = "MoveMeeple";
     public const string Chat = "Chat";
     public const string NewPlayer = "NewPlayer";
-    public const string EndPlayerAction = "EndPlayerAction";
-    public const string OtherPlayerAction = "OtherPlayerAction";
-}
-
-public static class PlayerActionType
-{
-    public const string MoveMeeple = "MoveMeeple";
-    public const string SetTileBidNum = "SetTileBidNum";
+    public const string MeepleAction = "MeepleAction";
 }
 
 [Serializable]
-public class MoveMeepleData
+public class ChatData
 {
-    public string meepleID;
-    public string tileID;
-}
-
-[Serializable]
-public class SetTileBidNumData
-{
-    public string tileID;
     public string playerID;
-    public int bidNum;
+    public string chatTime;
+    public string content;
 }
 
 [Serializable]
@@ -113,22 +99,18 @@ public class GameReadyData
 }
 
 [Serializable]
-public class EndPlayerActionData
+public class MeepleActionData
 {
     public string playerID;
-    public List<PlayerActionData> actions;
+    public List<DetailMeepleActionData> detailMeepleActions;
 }
 
 [Serializable]
-public class PlayerActionData
+public class DetailMeepleActionData
 {
-    public string type;
-    public string data;
-}
-
-[Serializable]
-public class OtherPlayerActionData
-{
-    public string playerID;
-    public List<PlayerActionData> actions;
+    public MeepleActionType type;
+    public string meepleID;
+    public string targetTileID;
+    public int number;
+    public List<string> childrenMeepleIDs;
 }

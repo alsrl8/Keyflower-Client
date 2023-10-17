@@ -43,10 +43,6 @@ public class WebSocketClient : MonoBehaviour
             {
                 case ServerMessageType.CommonMessage:
                     break;
-                case ServerMessageType.OtherPlayerAction:
-                    var otherPlayerActionData = JsonUtility.FromJson<OtherPlayerActionData>(serverMessage.data);
-                    HandleOtherPlayerAction(otherPlayerActionData);
-                    break;
                 case ServerMessageType.TurnChange:
                     var turnChangeData = JsonUtility.FromJson<TurnChangeData>(serverMessage.data);
                     HandleTurnChange(turnChangeData.turn);
@@ -56,6 +52,10 @@ public class WebSocketClient : MonoBehaviour
                     break;
                 case ServerMessageType.NewTile:
                     NewTile(serverMessage.data);
+                    break;
+                case ServerMessageType.MeepleAction:
+                    var meepleActionData = JsonUtility.FromJson<MeepleActionData>(serverMessage.data);
+                    HandleMeepleAction(meepleActionData);
                     break;
                 case ServerMessageType.Register:
                     var userID = GetIdFromServerMessageData(serverMessage.data);
@@ -72,6 +72,10 @@ public class WebSocketClient : MonoBehaviour
                     var gameReadyData = GetGameReadyDataFromServerMessageData(serverMessage.data);
                     HandleGameStart(gameReadyData);
                     break;
+                case ServerMessageType.Chat:
+                    var chatData = JsonUtility.FromJson<ChatData>(serverMessage.data);
+                    HandleChat(chatData);
+                    break;
             }
         });
     }
@@ -86,6 +90,7 @@ public class WebSocketClient : MonoBehaviour
         if (!_webSocket.IsAlive) return;
 
         var data = JsonUtility.ToJson(serverMessage);
+        Debug.Log($"Send message to server: {data}");
         _webSocket.Send(data);
     }
 
@@ -142,7 +147,7 @@ public class WebSocketClient : MonoBehaviour
             case "Winter":
                 RoundManager.Instance.StartWinter();
                 break;
-        }    
+        }
     }
 
     private GameReadyData GetGameReadyDataFromServerMessageData(string data)
@@ -157,18 +162,47 @@ public class WebSocketClient : MonoBehaviour
         GameManager.Instance.GameStart(myTurn);
     }
 
-    private void HandleOtherPlayerAction(OtherPlayerActionData otherPlayerActionData)
+    private void HandleMeepleAction(MeepleActionData meepleActionData)
     {
-        foreach (var actionData in otherPlayerActionData.actions)
+        var actions = meepleActionData.detailMeepleActions;
+        foreach (var action in actions)
         {
-            switch (actionData.type)
+            string meepleID, tileID;
+            Meeple meeple;
+            GameObject meepleObj;
+
+            switch (action.type)
             {
-                case PlayerActionType.MoveMeeple:
-                    var moveMeepleData = JsonUtility.FromJson<MoveMeepleData>(actionData.data);
-                    if (MeepleManager.Instance.IsMeepleBelongToUser(moveMeepleData.meepleID)) continue; // Don't move meeple if it belongs to this player.
-                    GameManager.Instance.BidMeepleToTile(moveMeepleData.meepleID, moveMeepleData.tileID);
+                case MeepleActionType.Bid:
+                    meepleID = action.meepleID;
+                    tileID = action.targetTileID;
+                    meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+                    meepleObj = meeple.gameObject;
+                    var tilePosition = TileManager.Instance.GetTilePositionByID(tileID);
+                    meeple.Number = action.number;
+                    meepleObj.SetActive(true);
+                    GameManager.Instance.BidOtherFirstMeepleToTile(meepleActionData.playerID, meepleID, tileID);
+                    MoveManager.Instance.MoveMeepleToTileSide(meepleObj, tilePosition, 0f);
+                    break;
+                case MeepleActionType.Play:
+                    break;
+                case MeepleActionType.BidMore:
+                    meepleID = action.meepleID;
+                    tileID = action.targetTileID;
+                    meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+                    meeple.Number += action.number;
+                    GameManager.Instance.BidOtherMoreMeepleToTile(meepleActionData.playerID, tileID, action.number);
                     break;
             }
+        }
+    }
+
+    private void HandleChat(ChatData chatData)
+    {
+        ChatLogs.Instance.AddMessage(chatData);
+        if (!ReferenceEquals(ChatManager.Instance, null) && ChatManager.Instance.IsActive)
+        {
+            ChatManager.Instance.ShowMessageOnChatPanel(chatData);
         }
     }
 }

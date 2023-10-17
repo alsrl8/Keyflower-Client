@@ -148,5 +148,13 @@ namespace Piece
         {
             return _meepleTileDictionary.ContainsKey(meepleID);
         }
+
+        public bool IsWinningOnTile(string meepleID)
+        {
+            if (!_meepleTileDictionary.ContainsKey(meepleID)) return false;
+            var meeple = _meepleDictionary[meepleID];
+            var tileID = _meepleTileDictionary[meepleID];
+            return TileManager.Instance.GetBidWinnerByTileID(tileID) == GameManager.Instance.UserID;
+        }
     }
 }

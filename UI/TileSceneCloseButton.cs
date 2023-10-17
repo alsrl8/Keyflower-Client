@@ -1,25 +1,23 @@
-﻿using Piece;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class FunctionTestButton : MonoBehaviour
+    public class TileSceneCloseButton : MonoBehaviour
     {
-        public static FunctionTestButton Instance { get; private set; }
         private Button _button;
 
         private void Awake()
         {
-            if (Instance != null) return;
-            Instance = this;
             _button = GetComponent<Button>();
+            _button.interactable = true;
             _button.onClick.AddListener(OnButtonClick);
         }
 
         private void OnButtonClick()
         {
-            TileManager.Instance.GetBidWinnerByTileID("");
+            SceneManager.UnloadSceneAsync("TileScene");
         }
     }
 }

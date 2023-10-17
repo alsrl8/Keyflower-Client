@@ -82,17 +82,28 @@ public class GameManager : MonoBehaviour
     {
         return _currentTurn == _myTurn && _currentTurn > 0;
     }
-
-    public void BidMeepleToTile(string meepleID, string tileID)
+    
+    public void BidOtherFirstMeepleToTile(string playerID, string meepleID, string tileID)
     {
         MeepleManager.Instance.PutOnTile(meepleID, tileID);
-        TileManager.Instance.BidMeepleOnTile(meepleID, tileID);
+        TileManager.Instance.BidFirstOtherMeepleOnTile(playerID, meepleID, tileID);
     }
 
-    public void BidMeepleToActiveTile(string meepleID)
+    public void BidOtherMoreMeepleToTile(string playerID, string tileID, int bidNum)
+    {
+        TileManager.Instance.BidMoreOtherMeepleOnTile(playerID, tileID, bidNum);
+    }
+
+    public void BidFirstMeepleToTile(string meepleID, string tileID)
+    {
+        MeepleManager.Instance.PutOnTile(meepleID, tileID);
+        TileManager.Instance.BidFirstMeepleOnTile(meepleID, tileID);
+    }
+
+    public void BidFirstMeepleToActiveTile(string meepleID)
     {
         var tileID = TileManager.Instance.GetTriggeredTileID();
-        BidMeepleToTile(meepleID, tileID);
+        BidFirstMeepleToTile(meepleID, tileID);
     }
 
     public void UnBidMeepleFromTile(string meepleID, string tileID)
@@ -103,8 +114,6 @@ public class GameManager : MonoBehaviour
 
     public void HandlePlayButton()
     {
-        // TODO 플레이 버튼을 눌렀을 때 
-        // Meeple Action을 확인하여 유효한 Meeple Action이라면
-        // 포함된 Meeple들을 그룹화하고 다음 턴으로 넘기는 작업까지 구현
+        MeepleActionManager.Instance.SendMeepleActions();
     }
 }

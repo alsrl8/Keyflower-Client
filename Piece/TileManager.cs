@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UI;
 using UnityEngine;
 
 namespace Piece
@@ -38,17 +39,30 @@ namespace Piece
 
         public void AddNewTile(NewTileData tileData)
         {
-            var tilePosition = GetTileInitialPositionByOrder(_tileDictionary.Count);
+            var tilePosition = GetTileInitialPositionByOrder(_tileDictionary.Count); // TODO 계절별 타일 초기 위치를 수정할 것
             var tileObj = Instantiate(tilePrefab, tilePosition, Quaternion.identity, tilesGroup.transform);
             tileObj.name = tileData.tileID;
             _tileDictionary.Add(tileData.tileID, tileObj.GetComponent<Tile>());
             _tileInfoDictionary.Add(tileData.tileID, tileData.tileInfo);
         }
 
-        public void BidMeepleOnTile(string meepleID, string tileID)
+        public void BidFirstOtherMeepleOnTile(string playerID, string meepleID, string tileID)
+        {
+            var meeple = MeepleManager.Instance.GetMeepleByID(meepleID);
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, meeple.Number);
+        }
+
+        public void BidFirstMeepleOnTile(string meepleID, string tileID)
         {
             var playerID = GameManager.Instance.UserID;
-            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID);
+            var firstBidNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, firstBidNum);
+        }
+
+        public void BidMoreOtherMeepleOnTile(string playerID, string tileID, int bidNum)
+        {
+            var meepleID = _tileDictionary[tileID].GetBidMeepleByPlayerID(playerID);
+            _tileDictionary[tileID].SetBidMeeple(playerID, meepleID, bidNum);
         }
 
         public void UnBidFromTile(string tileID)
@@ -108,9 +122,12 @@ namespace Piece
             return _tileDictionary[tileID].GetColor(); 
         }
 
-        public TileInfoData GetTileInfoByTileID(string tileID)
+        public void SetTileInfoToDialogueByTileID(string tileID)
         {
-            return _tileInfoDictionary[tileID];
+            var tile = _tileDictionary[tileID];
+            var tileInfo = _tileInfoDictionary[tileID];
+            TileDialogue.Instance.SetTileInfo(tile, tileInfo);
+            
         }
 
         private Vector3 GetTileInitialPositionByOrder(int order)
@@ -149,5 +166,50 @@ namespace Piece
 
             return new Vector3(xPosition, 0.6f, zPosition);
         }
+
+        public int GetBidNumByTileID(string tileID)
+        {
+            return _tileDictionary[tileID].BidNum;
+        }
+
+        public void SetBidMeeple(string meepleID, string tileID, int newBidNum)
+        {
+            var tile = _tileDictionary[tileID];
+            var playerID = GameManager.Instance.UserID;
+            tile.SetBidMeeple(playerID, meepleID, newBidNum);
+        }
+
+        public string GetBidWinnerByTileID(string tileID)
+        {
+            return _tileDictionary[tileID].BidWinner;
+        }
+
+        public List<string> GetBidWinningTileIDs() // TODO Tile Scene 테스트 용도로 만듦
+        {
+            var tileIDs = new List<string>();
+            foreach (var (tileID, tile) in _tileDictionary)
+            {
+                if (tile.BidWinner == GameManager.Instance.UserID)
+                {
+                    var tileName = _tileInfoDictionary[tileID].name;
+                    tileIDs.Add(tileName);
+                } 
+            }
+            return tileIDs;
+        }
+
+        public void SetInactiveSeasonTiles(string season)
+        {
+            foreach (var (tileID, tile) in _tileDictionary)
+            {
+                var tileInfo = _tileInfoDictionary[tileID];
+                if (tileInfo.season == season)
+                {
+                    tile.gameObject.SetActive(false);
+                    tile.SetInactiveBidMeeples();
+                }
+            }
+        }
+        
     }
 }
