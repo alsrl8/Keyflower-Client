@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Piece
 {
@@ -11,6 +12,7 @@ namespace Piece
         public GameObject playNumLogo;
         private MeshRenderer _bidNumLogo;
         private MeshRenderer _playNumLogo;
+        public string BidWinner { get; set; }
         private int _bidNum;
         public int BidNum
         {
@@ -91,7 +93,12 @@ namespace Piece
         public void SetBidMeeple(string playerID, string meepleID)
         {
             _playerBidMeepleDictionary[playerID] = meepleID;
-            BidNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+            var meepleNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+            if (BidNum < meepleNum)
+            {
+                BidWinner = playerID;
+                BidNum = MeepleManager.Instance.GetMeepleByID(meepleID).Number;
+            }
         }
 
         public void RemoveBidMeeple(string playerID)
@@ -106,6 +113,7 @@ namespace Piece
                     maxBidNum = meepleNum;
                 }
             }
+
             BidNum = maxBidNum;
         }
 
@@ -154,6 +162,15 @@ namespace Piece
             }
 
             return color;
+        }
+
+        public void SetInactiveBidMeeples()
+        {
+            foreach (var (playerID, bidMeepleID) in _playerBidMeepleDictionary)
+            {
+                var bidMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
+                bidMeeple.gameObject.SetActive(false);
+            }
         }
     }
 }

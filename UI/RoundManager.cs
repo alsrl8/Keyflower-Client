@@ -1,4 +1,5 @@
 using System.Collections;
+using Piece;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,18 +52,24 @@ namespace UI
         {
             CurrentSeason = "Summer";
             ShowRoundWordImage(summerWordImage);
+            
+            TileManager.Instance.SetInactiveSeasonTiles("Spring");
         }
 
         public void StartAutumn()
         {
             CurrentSeason = "Autumn";
             ShowRoundWordImage(autumnWordImage);
+            
+            TileManager.Instance.SetInactiveSeasonTiles("Summer");
         }
 
         public void StartWinter()
         {
             CurrentSeason = "Winter";
             ShowRoundWordImage(winterWordImage);
+            
+            TileManager.Instance.SetInactiveSeasonTiles("Autumn");
         }
 
         public void InactiveRoundImage()

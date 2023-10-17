@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Piece
 {
@@ -15,17 +16,42 @@ namespace Piece
         private Meeple _triggeredMeeple;
         private Chest _triggeredChest;
 
+
         // Singleton pattern
         private void Awake()
         {
             if (Instance == null)
             {
                 Instance = this;
+                SceneManager.sceneLoaded += OnSceneLoaded;
+                SceneManager.sceneUnloaded += OnSceneUnloaded;
                 DontDestroyOnLoad(gameObject); // Retain the object when switching scenes
             }
             else
             {
                 Destroy(gameObject); // Destroy additional instance
+            }
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // Check whether the loaded scene is the one you are looking for
+            if (scene.name == "TileScene")
+            {
+                gameObject.SetActive(false);
+            }
+        }
+
+        private void OnSceneUnloaded(Scene scene)
+        {
+            if (scene.name == "TileScene")
+            {
+                gameObject.SetActive(true);
             }
         }
 
@@ -39,7 +65,8 @@ namespace Piece
             // Handle the start of a drag operation
             if (Input.GetMouseButtonDown(0))
             {
-                if (TileDialogue.Instance.IsTileDialogueAlive()) return;
+                if (!ReferenceEquals(ChatManager.Instance, null) && ChatManager.Instance.IsActive) return;
+                else if (TileDialogue.Instance.IsTileDialogueAlive()) return;
 
                 StartDragging();
                 if (_isDragging)
@@ -78,7 +105,7 @@ namespace Piece
                 var hit = hits[i];
                 var meepleID = hit.collider.gameObject.name;
                 if (!MeepleManager.Instance.IsMeepleBelongToUser(meepleID)) continue;
-                else if (MeepleManager.Instance.IsAttachedToTile(meepleID)) continue;
+                else if (MeepleManager.Instance.IsWinningOnTile(meepleID)) continue;
                 clickedMeeple = hit.collider.gameObject;
                 break;
             }
@@ -97,7 +124,7 @@ namespace Piece
                 TileManager.Instance.ActivateOutline(triggeredTileID);
                 TileManager.Instance.TriggerTile(triggeredTileID);
             }
-            
+
             ReleaseDraggingMeeple();
         }
 
@@ -115,8 +142,7 @@ namespace Piece
             if (!Physics.Raycast(_ray, out var hit, Mathf.Infinity, layerMask)) return;
 
             var tileID = hit.collider.gameObject.name;
-            var tileInfo = TileManager.Instance.GetTileInfoByTileID(tileID);
-            TileDialogue.Instance.SetTileInfo(tileInfo);
+            TileManager.Instance.SetTileInfoToDialogueByTileID(tileID);
             TileDialogue.Instance.ActivateTileDialogue();
         }
 
@@ -200,7 +226,7 @@ namespace Piece
         private void DropOnTileEvent()
         {
             var tileID = TileManager.Instance.GetTriggeredTileID();
-            if (IsDraggingMeepleHasSameColorWithTile() && IsDraggingMeepleNumBiggerThanTileBidNum(tileID))
+            if (IsDraggingMeepleHasSameColorWithTile())
             {
                 HandleGroupToBidMeeple(tileID);
             }
@@ -245,7 +271,7 @@ namespace Piece
                 _currentlyDragging.TryGetComponent<Meeple>(out var draggingMeeple);
                 var myMeeple = MeepleManager.Instance.GetMeepleByID(bidMeepleID);
                 if (draggingMeeple.Number + myMeeple.Number > 6) return;
-                TileManager.Instance.SetBidNumByTileID(tileID, draggingMeeple.Number);
+                TileManager.Instance.SetBidMeeple(draggingMeeple.name, tileID);
                 myMeeple.GroupMeeple(draggingMeeple);
                 MeepleActionManager.Instance.AddMeepleBidAction(myMeeple.name, tileID);
             }

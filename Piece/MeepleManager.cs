@@ -154,8 +154,7 @@ namespace Piece
             if (!_meepleTileDictionary.ContainsKey(meepleID)) return false;
             var meeple = _meepleDictionary[meepleID];
             var tileID = _meepleTileDictionary[meepleID];
-            var bidNum = TileManager.Instance.GetBidNumByTileID(tileID);
-            return bidNum == meeple.Number;
+            return TileManager.Instance.GetBidWinnerByTileID(tileID) == GameManager.Instance.UserID;
         }
     }
 }

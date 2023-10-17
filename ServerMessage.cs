@@ -30,6 +30,14 @@ public static class ServerMessageType
 }
 
 [Serializable]
+public class ChatData
+{
+    public string playerID;
+    public string chatTime;
+    public string content;
+}
+
+[Serializable]
 public class TurnChangeData
 {
     public int turn;

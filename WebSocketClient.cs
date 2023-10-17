@@ -72,6 +72,10 @@ public class WebSocketClient : MonoBehaviour
                     var gameReadyData = GetGameReadyDataFromServerMessageData(serverMessage.data);
                     HandleGameStart(gameReadyData);
                     break;
+                case ServerMessageType.Chat:
+                    var chatData = JsonUtility.FromJson<ChatData>(serverMessage.data);
+                    HandleChat(chatData);
+                    break;
             }
         });
     }
@@ -175,6 +179,15 @@ public class WebSocketClient : MonoBehaviour
                 GameManager.Instance.BidOtherMeepleToTile(meepleActionData.playerID, meepleID, tileID);
                 MoveManager.Instance.MoveMeepleToTileSide(meepleObj, tilePosition, 0f);
             }
+        }
+    }
+
+    private void HandleChat(ChatData chatData)
+    {
+        ChatLogs.Instance.AddMessage(chatData);
+        if (!ReferenceEquals(ChatManager.Instance, null) && ChatManager.Instance.IsActive)
+        {
+            ChatManager.Instance.ShowMessageOnChatPanel(chatData);
         }
     }
 }
